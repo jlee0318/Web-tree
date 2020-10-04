@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"
+        integrity="sha384-1CmrxMRARb6aLqgBO7yyAxTOQE2AKb9GfXnEo760AUcUmFx3ibVJJAzGytlQcNXd"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <!-- 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"
+        integrity="sha512-tBzZQxySO5q5lqwLWfu8Q+o4VkTcRGOeQGVQ0ueJga4A1RKuzmAu5HXDOXLEjpbKyV7ow9ympVoa6wZLEzRzDg=="
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.min.js"
+        integrity="sha512-ADpWKsaOuAegRSoUObE1si2VF6HQJyQR3Zy44l7s6YsGA6BnPIrIwN9uKJ0rsMhtDAMFqnGZhQXMJcsWSp40pA=="
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.css"
+        integrity="sha512-ySoXPqkgXC7K7IS5vOdi47uEpct2yJ3MkYVVVHiM7FOmdDnBUVSmB/D1ps2Pf6jBJnBMyh1EPJLpWh2uCzOLdg=="
+        crossorigin="anonymous" /> -->
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-3 col-12 panelLeft">
+                <div class="row">
+                    <div class="col-lg-12 col-6 rowInputContainer">
+                        <div class="row rowInput">
+                            <div class="col-8 colText">
+                                <input type="text" id="inputResetNode" class="form-control"
+                                    placeholder="New root content">
+                            </div>
+                            <div class="col-4 colButton">
+                                <button type="button" id="btnResetNode"
+                                    class="form-control btn btn-danger">Reset</button>
+                            </div>
+                        </div>
+                        <div class="row rowInput">
+                            <div class="col-8 colText">
+                                <input type="text" id="inputAddNode" class="form-control"
+                                    placeholder="New node content">
+                            </div>
+                            <div class="col-4 colButton">
+                                <button type="button" id="btnAddNode" class="form-control btn btn-primary">Add</button>
+                            </div>
+                        </div>
+                        <div class="row rowInput">
+                            <div class="col-8 colText">
+                                <input type="text" id="inputDeleteNode" class="form-control"
+                                    placeholder="Delete node content">
+                            </div>
+                            <div class="col-4 colButton">
+                                <button type="button" id="btnDeleteNode"
+                                    class="form-control btn btn-primary">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-6 rowOutputContainer">
+                        <div class="row rowOutput">
+                            <div class="col">
+                                <textarea id="output" class="form-control" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-12 canvasContainer">
+                <canvas id="mainCanvas" width="5000px" height="1000px">
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+<script>
+    class Node {
+        constructor(content) {
+            this.content = content;
+            this.right = null;
+            this.left = null;
+        }
+    }
+
+    class BTree {
+        constructor(rootContent) {
+            this.root = new Node(rootContent);
+            this.maxdepth = 0;
+
+            // For Drawing
+            this.nodeR = 30;
+            this.nodeSize = 90;
+            this.maxHorizontal = 0;
+        }
+        add(newContent) {
+            this._add(newContent, this.root);   
+        }
+        _add(newContent, currentNode) {
+
+            // Set if the tree allow duplicate number or not
+            if (newContent < currentNode.content) {
+                if (currentNode.left == null) {
+                    currentNode.left = new Node(newContent);
+                } else {
+                    this._add(newContent, currentNode.left);
+                }
+            } else if (newContent > currentNode.content) {
+                if (currentNode.right == null) {
+                    currentNode.right = new Node(newContent);
+                } else {
+                    this._add(newContent, currentNode.right);
+                }
+            }
+        }
+        printAll() {
+            this._printAll(this.root);
+        }
+        _printAll(currentNode) {
+            if (currentNode.left != null) {
+                this._printAll(currentNode.left);
+            }
+            print(currentNode.content);
+            if (currentNode.right != null) {
+                this._printAll(currentNode.right);
+            }
+
+        }
+
+        findMinNode(node) {
+            if (node.left === null) {
+                return node;
+            }
+            else {
+                return this.findMinNode(node.left);
+            }
+        }
+
+
+        delete(nodeContent) {
+            this.root = this._delete(nodeContent, this.root);
+            console.log(this.maxdepth);
+            this.getDepth();
+            console.log(this.maxdepth);
+        }
+
+        _delete(nodeContent, currentNode) {
+            if (currentNode === null) {
+                return null;
+            }
+
+            else if (nodeContent < currentNode.content) {
+                currentNode.left = this._delete(nodeContent, currentNode.left);
+                return currentNode;
+            }
+
+            else if (nodeContent > currentNode.content) {
+                currentNode.right = this._delete(nodeContent, currentNode.right);
+                return currentNode;
+            }
+
+            else {
+                if (currentNode.left === null && currentNode.right === null) {
+                    currentNode = null;
+                    return currentNode;
+                }
+
+                if (currentNode.left === null) {
+                    currentNode = currentNode.right;
+                    return currentNode;
+                }
+
+                else if (currentNode.right === null) {
+                    currentNode = currentNode.left;
+                    return currentNode;
+                }
+
+                var aux = this.findMinNode(currentNode.right);
+                currentNode.content = aux.content;
+                currentNode.right = this._delete(aux.content, currentNode.right);
+                return currentNode;
+            }
+        }
+
+        getDepth() {
+            this.maxdepth = 0;
+            this._getDepth(this.root, 1);
+            return this.maxdepth;
+        }
+
+        _getDepth(currentNode, depth) {
+            if (currentNode.left != null) {
+                this._getDepth(currentNode.left, depth + 1);
+            }
+            if (currentNode.right != null) {
+                this._getDepth(currentNode.right, depth + 1);
+            }
+            if (currentNode.right == null && currentNode.left == null) {
+                if (depth > this.maxdepth) {
+                    this.maxdepth = depth;
+                }
+            }
+        }
+
+        resetTree(newRootContent) {
+            this.deleteAll(this.root)
+            this.root = new Node(newRootContent);
+            this.maxdepth = 0;
+        }
+        deleteAll(currentNode) {
+
+            if (currentNode.left !== null) {
+                this.delete(currentNode.left);
+            }
+            if (currentNode.right !== null) {
+                this.delete(currentNode.right);
+            }
+            currentNode = null;
+        }
+
+        // getSortedValue() {
+
+        // }
+
+        drawTree() {
+            var depth = this.getDepth();
+            this.maxHorizontal = Math.pow(2, depth - 1);
+            print("maxhorizontal: " + this.maxHorizontal);
+            var startingX = (this.maxHorizontal + 1) / 2;
+            var startingDelta = Math.pow(2, depth - 3);
+            this._drawTree(this.root, startingX, 1, startingDelta);
+        }
+
+        _drawTree(currentNode, currentX, currentY, deltaX) {
+            this._drawNode(currentNode.content, currentX, currentY);
+            if (currentNode.left != null) {
+                this._drawLine(currentX, currentY, currentX - deltaX, currentY + 1);
+                this._drawTree(currentNode.left, currentX - deltaX, currentY + 1, deltaX / 2);
+            }
+            if (currentNode.right != null) {
+                this._drawLine(currentX, currentY, currentX + deltaX, currentY + 1);
+                this._drawTree(currentNode.right, currentX + deltaX, currentY + 1, deltaX / 2);
+            }
+        }
+
+        _drawNode(text, x, y) {
+            let c = document.getElementById("mainCanvas");
+            var ctx = c.getContext("2d");
+            ctx.beginPath();
+            ctx.arc(x * this.nodeSize, y * this.nodeSize, this.nodeR, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.font = "20px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, x * this.nodeSize, y * this.nodeSize);
+        }
+
+        _drawLine(startX, startY, targetX, targetY) {
+            let c = document.getElementById("mainCanvas");
+            var ctx = c.getContext("2d");
+            ctx.moveTo(startX * this.nodeSize, startY * this.nodeSize + this.nodeR);
+            ctx.lineTo(targetX * this.nodeSize, targetY * this.nodeSize - this.nodeR);
+            ctx.stroke();
+        }
+    }
+
+    function main() {
+        addListeners();
+
+        setInterval(function () {
+            controlLayout()
+        }, 100);
+
+        tree = new BTree(10);
+        tree.add(5);
+        tree.add(12);
+        tree.add(3);
+        tree.add(7);
+        tree.add(16);
+        tree.add(14);
+        tree.add(18);
+        // tree.add(17);
+        tree.printAll();
+        print("Depth: " + tree.getDepth());
+
+        tree.drawTree();
+    }
+
+
+    function addListeners() {
+        $('#btnAddNode').click(function () {
+            let input = $('#inputAddNode').val();
+            if (input > -1 && input < 1) {
+                input = 0;
+            }
+            else {
+                input = input.replace(/^0+/, '');
+            }
+            if (Number.isFinite(parseInt(input))) {
+                tree.add(input);
+                $('#inputAddNode').val("");
+                refresh();
+            }
+        });
+
+        $('#btnResetNode').click(function () {
+            let input = $('#inputResetNode').val();
+            $('#inputResetNode').val("");
+            tree.resetTree(input);
+            refresh();
+        })
+
+        $('#btnDeleteNode').click(function () {
+            let input = $('#inputDeleteNode').val();
+            $('#inputDeleteNode').val("");
+            tree.delete(input);
+            refresh();
+        })
+    }
+
+    function refresh() {
+        $('#output').html("");
+        let c = document.getElementById("mainCanvas");
+        var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+        tree.printAll();
+        tree.drawTree();
+    }
+
+    function print(content) {
+        $('#output').attr('readonly', false);
+        $('#output').append(content + "\n");
+        $('#output').attr('readonly', true);
+    }
+
+    function drawTree(tree) {
+        let c = document.getElementById("mainCanvas");
+        let ctx = c.getContext("2d");
+        ctx.moveTo(0, 0);
+        ctx.lineTo(100, 100);
+        ctx.stroke();
+    }
+
+    function controlLayout() {
+        $(".canvasContainer").css('height', window.innerHeight + 'px');
+        if ($(window).width() < 992) {
+            $("#output").css('height', $(".rowInput").outerHeight(true) * 3 - 38 + 'px');
+        } else {
+            $("#output").css('height', (window.innerHeight - $(".rowInput").outerHeight(true) * 3) + 'px');
+        }
+        
+    }
+
+    main();
+</script>
+
+<style>
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .rowInputContainer {
+        padding: 0 10px;
+    }
+
+    .rowInput {
+        margin: 10px 0;
+    }
+
+    .rowOutputContainer {
+        padding: 0;
+    }
+
+    .rowOutput {
+        margin: 10px 0;
+    }
+
+    .colText {
+        padding: 0;
+    }
+
+    .colButton {
+        padding: 0;
+        text-align: right;
+    }
+
+    #output {
+        width: 100%;
+        height: 100%;
+    }
+
+    .canvasContainer {
+        width: 100%;
+        height: 850px;
+        border: 1px solid #ced4da;
+        overflow: auto;
+    }
+
+    #mainCanvas {
+        /* margin-top: 20px; */
+        /* width: 100%;
+        height: 100%; */
+
+    }
+</style>
